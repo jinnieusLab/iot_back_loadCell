@@ -1,4 +1,4 @@
-package com.example.IoTBack.loadCell;
+package com.example.IoTBack.trashBin;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

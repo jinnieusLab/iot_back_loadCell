@@ -1,11 +1,10 @@
-package com.example.IoTBack.loadCell.domain;
+package com.example.IoTBack.trashBin.liquid.domain;
 
+import com.example.IoTBack.trashBin.bin.domain.Bin;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

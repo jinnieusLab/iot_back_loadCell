@@ -1,4 +1,4 @@
-package com.example.IoTBack.loadCell.controller;
+package com.example.IoTBack.trashBin.liquid.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RequestMapping;

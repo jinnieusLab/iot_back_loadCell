@@ -1,5 +1,6 @@
-package com.example.IoTBack.loadCell.domain;
+package com.example.IoTBack.trashBin.cup.domain;
 
+import com.example.IoTBack.trashBin.bin.domain.Bin;
 import jakarta.persistence.*;
 import lombok.*;
 
