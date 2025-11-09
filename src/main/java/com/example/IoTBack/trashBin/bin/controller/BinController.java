@@ -1,4 +1,23 @@
 package com.example.IoTBack.trashBin.bin.controller;
 
+import com.example.IoTBack.global.apiPayload.BaseResponse;
+import com.example.IoTBack.trashBin.bin.dto.request.BinRequestDTO;
+import com.example.IoTBack.trashBin.bin.dto.response.BinResponseDTO;
+import com.example.IoTBack.trashBin.bin.service.BinService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/api/bin")
 public class BinController {
+    private final BinService binService;
+
+    @PostMapping
+    public BaseResponse<BinResponseDTO.CreateBinResultDTO> createBin(@RequestBody BinRequestDTO.CreateBinDTO createBinDTO) {
+        return null;
+    }
 }

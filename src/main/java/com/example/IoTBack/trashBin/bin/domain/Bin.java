@@ -20,6 +20,10 @@ public class Bin {
     @Column(name = "bin_id")
     private Long id;
 
+    private String name;
+
+    private String location;
+
     @OneToOne(mappedBy = "bin")
     private Liquid liquid;
 
