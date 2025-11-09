@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class LiquidResponseDTO {
 
@@ -28,5 +29,13 @@ public class LiquidResponseDTO {
         private LocalDateTime measuredAt;
         private Boolean overload;
         private Long binId;
+    }
+
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public static class LiquidPreviewListDTO {
+        List<LiquidPreviewDTO> liquidPreviewDTOs;
     }
 }

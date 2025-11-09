@@ -15,6 +15,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -50,5 +52,11 @@ public class LiquidServiceImpl implements LiquidService {
         return liquidRepository.findById(liquidId).orElseThrow(() -> {
             throw new LiquidHandler(ErrorStatus._NOT_FOUND_LIQUID);
         });
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<Liquid> readLiquids() {
+        return liquidRepository.findAll();
     }
 }

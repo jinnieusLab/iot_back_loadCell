@@ -28,7 +28,7 @@ public class Liquid {
     // 이전 측정값과 비교해 새로 추가된 물의 양
     private double addedWeight;
 
-    // 5kg 초과 여부
+    // 5kg 초과 여부 혹은 80% 이상 찼는지 여부
     private Boolean overload = false;
 
     @OneToOne

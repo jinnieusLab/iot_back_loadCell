@@ -5,6 +5,8 @@ import com.example.IoTBack.trashBin.liquid.domain.Liquid;
 import com.example.IoTBack.trashBin.liquid.dto.request.LiquidRequestDTO;
 import com.example.IoTBack.trashBin.liquid.dto.response.LiquidResponseDTO;
 
+import java.util.List;
+
 public class LiquidConverter {
     public static Liquid toLiquid(LiquidRequestDTO.CreateLiquidDTO createLiquidDTO) {
         return Liquid.builder()
@@ -26,6 +28,15 @@ public class LiquidConverter {
                 .measuredAt(liquid.getMeasuredAt())
                 .overload(liquid.getOverload())
                 .binId(liquid.getBin().getId())
+                .build();
+    }
+
+    public static LiquidResponseDTO.LiquidPreviewListDTO toLiquidPreviewListDTO(List<Liquid> liquids) {
+        List<LiquidResponseDTO.LiquidPreviewDTO> liquidPreviewDTOs = liquids.stream()
+                .map(LiquidConverter::toLiquidPreviewDTO).toList();
+
+        return LiquidResponseDTO.LiquidPreviewListDTO.builder()
+                .liquidPreviewDTOs(liquidPreviewDTOs)
                 .build();
     }
 }
