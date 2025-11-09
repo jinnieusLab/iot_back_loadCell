@@ -1,5 +1,6 @@
 package com.example.IoTBack.trashBin.bin.service.impl;
 
+import com.example.IoTBack.trashBin.bin.converter.BinConverter;
 import com.example.IoTBack.trashBin.bin.domain.Bin;
 import com.example.IoTBack.trashBin.bin.dto.request.BinRequestDTO;
 import com.example.IoTBack.trashBin.bin.repository.BinRepository;
@@ -16,7 +17,8 @@ public class BinServiceImpl implements BinService {
 
     @Override
     public Bin createBin(BinRequestDTO.CreateBinDTO createBinDTO) {
-        return null;
+        Bin bin = BinConverter.toBin(createBinDTO);
+        return binRepository.save(bin);
     }
 
     @Transactional(readOnly = true)
