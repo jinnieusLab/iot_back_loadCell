@@ -16,4 +16,14 @@ public class BinResponseDTO {
         private String name;
         private String location;
     }
+
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public static class BinPreviewDTO {
+        private Long id;
+        private String name;
+        private String location;
+    }
 }

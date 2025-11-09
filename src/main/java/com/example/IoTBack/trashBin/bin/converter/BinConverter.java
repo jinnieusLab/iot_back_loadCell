@@ -19,4 +19,12 @@ public class BinConverter {
                 .location(bin.getLocation())
                 .build();
     }
+
+    public static BinResponseDTO.BinPreviewDTO toBinPreviewDTO(Bin bin) {
+        return BinResponseDTO.BinPreviewDTO.builder()
+                .id(bin.getId())
+                .name(bin.getName())
+                .location(bin.getLocation())
+                .build();
+    }
 }

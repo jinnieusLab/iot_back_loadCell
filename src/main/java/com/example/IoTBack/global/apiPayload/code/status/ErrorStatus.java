@@ -19,7 +19,6 @@ public enum ErrorStatus implements BaseErrorCode {
     // bin 에러
     _NOT_FOUND_BIN(HttpStatus.NOT_FOUND, "BIN400", "bin을 찾을 수 없습니다.");
 
-
     private final HttpStatus httpStatus;
     private final String code;
     private final String message;

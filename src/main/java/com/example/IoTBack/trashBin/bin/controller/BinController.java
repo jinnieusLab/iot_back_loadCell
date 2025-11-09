@@ -7,10 +7,7 @@ import com.example.IoTBack.trashBin.bin.dto.request.BinRequestDTO;
 import com.example.IoTBack.trashBin.bin.dto.response.BinResponseDTO;
 import com.example.IoTBack.trashBin.bin.service.BinService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -22,5 +19,11 @@ public class BinController {
     public BaseResponse<BinResponseDTO.CreateBinResultDTO> createBin(@RequestBody BinRequestDTO.CreateBinDTO createBinDTO) {
         Bin bin = binService.createBin(createBinDTO);
         return BaseResponse.onSuccess(BinConverter.tocreateBinResultDTO(bin));
+    }
+
+    @GetMapping("/{binId}")
+    public BaseResponse<BinResponseDTO.BinPreviewDTO> readBin(Long id) {
+        Bin bin = binService.readBin(id);
+        return BaseResponse.onSuccess(BinConverter.toBinPreviewDTO(bin));
     }
 }

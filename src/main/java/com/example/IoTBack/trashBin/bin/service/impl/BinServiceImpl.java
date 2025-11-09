@@ -1,5 +1,7 @@
 package com.example.IoTBack.trashBin.bin.service.impl;
 
+import com.example.IoTBack.global.apiPayload.code.status.ErrorStatus;
+import com.example.IoTBack.global.apiPayload.exception.handler.BinHandler;
 import com.example.IoTBack.trashBin.bin.converter.BinConverter;
 import com.example.IoTBack.trashBin.bin.domain.Bin;
 import com.example.IoTBack.trashBin.bin.dto.request.BinRequestDTO;
@@ -24,6 +26,8 @@ public class BinServiceImpl implements BinService {
     @Transactional(readOnly = true)
     @Override
     public Bin readBin(Long id) {
-        return null;
+        return binRepository.findById(id).orElseThrow(() -> {
+            throw new BinHandler(ErrorStatus._NOT_FOUND_BIN);
+        });
     }
 }
