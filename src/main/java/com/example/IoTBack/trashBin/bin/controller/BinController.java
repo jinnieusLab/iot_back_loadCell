@@ -22,8 +22,8 @@ public class BinController {
     }
 
     @GetMapping("/{binId}")
-    public BaseResponse<BinResponseDTO.BinPreviewDTO> readBin(Long id) {
-        Bin bin = binService.readBin(id);
+    public BaseResponse<BinResponseDTO.BinPreviewDTO> readBin(Long binId) {
+        Bin bin = binService.readBin(binId);
         return BaseResponse.onSuccess(BinConverter.toBinPreviewDTO(bin));
     }
 }

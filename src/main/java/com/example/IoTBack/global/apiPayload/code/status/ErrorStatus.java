@@ -17,7 +17,10 @@ public enum ErrorStatus implements BaseErrorCode {
     _FORBIDDEN(HttpStatus.FORBIDDEN, "COMMON403", "금지된 요청입니다."),
 
     // bin 에러
-    _NOT_FOUND_BIN(HttpStatus.NOT_FOUND, "BIN400", "bin을 찾을 수 없습니다.");
+    _NOT_FOUND_BIN(HttpStatus.NOT_FOUND, "BIN400", "bin을 찾을 수 없습니다."),
+
+    // liquid 에러
+    _NOT_FOUND_LIQUID(HttpStatus.NOT_FOUND, "LIQUID400", "liquid를 찾을 수 없습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

@@ -1,5 +1,54 @@
 package com.example.IoTBack.trashBin.liquid.service.impl;
 
 
-public class LiquidServiceImpl {
+import com.example.IoTBack.global.apiPayload.code.status.ErrorStatus;
+import com.example.IoTBack.global.apiPayload.exception.handler.BinHandler;
+import com.example.IoTBack.global.apiPayload.exception.handler.LiquidHandler;
+import com.example.IoTBack.trashBin.bin.domain.Bin;
+import com.example.IoTBack.trashBin.bin.repository.BinRepository;
+import com.example.IoTBack.trashBin.liquid.converter.LiquidConverter;
+import com.example.IoTBack.trashBin.liquid.domain.Liquid;
+import com.example.IoTBack.trashBin.liquid.dto.request.LiquidRequestDTO;
+import com.example.IoTBack.trashBin.liquid.repository.LiquidRepository;
+import com.example.IoTBack.trashBin.liquid.service.LiquidService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+@RequiredArgsConstructor
+@Transactional
+public class LiquidServiceImpl implements LiquidService {
+    private final LiquidRepository liquidRepository;
+    private final BinRepository binRepository;
+
+    @Override
+    public Liquid createLiquid(Long binId, LiquidRequestDTO.CreateLiquidDTO createLiquidDTO) {
+        Liquid liquid = LiquidConverter.toLiquid(createLiquidDTO);
+        Bin bin = binRepository.findById(binId).orElseThrow(() -> {
+            throw new BinHandler(ErrorStatus._NOT_FOUND_BIN);
+        });
+        liquid.setBin(bin);
+        return liquidRepository.save(liquid);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Liquid readLiquidByBinId(Long binId) {
+        Bin bin = binRepository.findById(binId).orElseThrow(() -> {
+            throw new BinHandler(ErrorStatus._NOT_FOUND_BIN);
+        });
+
+        return liquidRepository.findByBin(bin).orElseThrow(() -> {
+            throw new LiquidHandler(ErrorStatus._NOT_FOUND_LIQUID);
+        });
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Liquid readLiquidById(Long liquidId) {
+        return liquidRepository.findById(liquidId).orElseThrow(() -> {
+            throw new LiquidHandler(ErrorStatus._NOT_FOUND_LIQUID);
+        });
+    }
 }

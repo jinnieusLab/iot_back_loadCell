@@ -10,6 +10,7 @@ import com.example.IoTBack.trashBin.bin.service.BinService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PathVariable;
 
 @Service
 @RequiredArgsConstructor
@@ -25,8 +26,8 @@ public class BinServiceImpl implements BinService {
 
     @Transactional(readOnly = true)
     @Override
-    public Bin readBin(Long id) {
-        return binRepository.findById(id).orElseThrow(() -> {
+    public Bin readBin(@PathVariable Long binId) {
+        return binRepository.findById(binId).orElseThrow(() -> {
             throw new BinHandler(ErrorStatus._NOT_FOUND_BIN);
         });
     }

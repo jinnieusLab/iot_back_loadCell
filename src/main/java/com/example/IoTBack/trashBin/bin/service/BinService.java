@@ -6,5 +6,5 @@ import com.example.IoTBack.trashBin.bin.dto.request.BinRequestDTO;
 public interface BinService {
     Bin createBin(BinRequestDTO.CreateBinDTO createBinDTO);
 
-    Bin readBin(Long id);
+    Bin readBin(Long binId);
 }

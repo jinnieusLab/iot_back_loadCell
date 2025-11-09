@@ -1,0 +1,31 @@
+package com.example.IoTBack.trashBin.liquid.converter;
+
+
+import com.example.IoTBack.trashBin.liquid.domain.Liquid;
+import com.example.IoTBack.trashBin.liquid.dto.request.LiquidRequestDTO;
+import com.example.IoTBack.trashBin.liquid.dto.response.LiquidResponseDTO;
+
+public class LiquidConverter {
+    public static Liquid toLiquid(LiquidRequestDTO.CreateLiquidDTO createLiquidDTO) {
+        return Liquid.builder()
+                .weight(createLiquidDTO.getWeight())
+                .build();
+    }
+
+    public static LiquidResponseDTO.CreateLiquidResultDTO toCreateLiquidResultDTO(Liquid liquid) {
+        return LiquidResponseDTO.CreateLiquidResultDTO.builder()
+                .id(liquid.getId())
+                .binId(liquid.getBin().getId())
+                .build();
+    }
+
+    public static LiquidResponseDTO.LiquidPreviewDTO toLiquidPreviewDTO(Liquid liquid) {
+        return LiquidResponseDTO.LiquidPreviewDTO.builder()
+                .id(liquid.getId())
+                .weight(liquid.getWeight())
+                .measuredAt(liquid.getMeasuredAt())
+                .overload(liquid.getOverload())
+                .binId(liquid.getBin().getId())
+                .build();
+    }
+}
