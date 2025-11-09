@@ -2,6 +2,7 @@ package com.example.IoTBack.trashBin.liquid.service;
 
 import com.example.IoTBack.trashBin.liquid.domain.Liquid;
 import com.example.IoTBack.trashBin.liquid.dto.request.LiquidRequestDTO;
+import com.example.IoTBack.trashBin.liquid.dto.response.LiquidResponseDTO;
 
 import java.util.List;
 
@@ -13,5 +14,5 @@ public interface LiquidService {
 
     Liquid readLiquidById(Long liquidId);
 
-    List<Liquid> readLiquids();
+    LiquidResponseDTO.LiquidPreviewListWithAverageDTO readLiquids();
 }

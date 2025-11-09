@@ -39,10 +39,10 @@ public class LiquidController {
         return BaseResponse.onSuccess(LiquidConverter.toLiquidPreviewDTO(liquid));
     }
 
-    // 전체 liquid 정보 조회
+    // 전체 liquid 정보 + 전체 무게 평균 조회
     @GetMapping
-    public BaseResponse<LiquidResponseDTO.LiquidPreviewListDTO> readLiquids() {
-        List<Liquid> liquids = liquidService.readLiquids();
-        return BaseResponse.onSuccess(LiquidConverter.toLiquidPreviewListDTO(liquids));
+    public BaseResponse<LiquidResponseDTO.LiquidPreviewListWithAverageDTO> readLiquids() {
+        LiquidResponseDTO.LiquidPreviewListWithAverageDTO liquidsWithAverage = liquidService.readLiquids();
+        return BaseResponse.onSuccess(liquidsWithAverage);
     }
 }

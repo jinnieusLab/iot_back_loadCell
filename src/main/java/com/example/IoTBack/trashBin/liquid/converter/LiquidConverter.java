@@ -31,12 +31,13 @@ public class LiquidConverter {
                 .build();
     }
 
-    public static LiquidResponseDTO.LiquidPreviewListDTO toLiquidPreviewListDTO(List<Liquid> liquids) {
+    public static LiquidResponseDTO.LiquidPreviewListWithAverageDTO toLiquidPreviewListWithAverageDTO(List<Liquid> liquids, double averageWeight) {
         List<LiquidResponseDTO.LiquidPreviewDTO> liquidPreviewDTOs = liquids.stream()
                 .map(LiquidConverter::toLiquidPreviewDTO).toList();
 
-        return LiquidResponseDTO.LiquidPreviewListDTO.builder()
+        return LiquidResponseDTO.LiquidPreviewListWithAverageDTO.builder()
                 .liquidPreviewDTOs(liquidPreviewDTOs)
+                .averageWeight(averageWeight)
                 .build();
     }
 }

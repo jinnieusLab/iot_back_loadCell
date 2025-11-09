@@ -9,6 +9,7 @@ import com.example.IoTBack.trashBin.bin.repository.BinRepository;
 import com.example.IoTBack.trashBin.liquid.converter.LiquidConverter;
 import com.example.IoTBack.trashBin.liquid.domain.Liquid;
 import com.example.IoTBack.trashBin.liquid.dto.request.LiquidRequestDTO;
+import com.example.IoTBack.trashBin.liquid.dto.response.LiquidResponseDTO;
 import com.example.IoTBack.trashBin.liquid.repository.LiquidRepository;
 import com.example.IoTBack.trashBin.liquid.service.LiquidService;
 import lombok.RequiredArgsConstructor;
@@ -56,7 +57,20 @@ public class LiquidServiceImpl implements LiquidService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<Liquid> readLiquids() {
-        return liquidRepository.findAll();
+    public LiquidResponseDTO.LiquidPreviewListWithAverageDTO readLiquids() {
+        List<Liquid> liquids = liquidRepository.findAll();
+
+        List<LiquidResponseDTO.LiquidPreviewDTO> items = liquids.stream()
+                .map(LiquidConverter::toLiquidPreviewDTO)
+                .toList();
+
+        // 전체 물통 평균 무게 계산
+        double averageWeight = items.isEmpty() ? 0.0 :
+                items.stream()
+                        .mapToDouble(LiquidResponseDTO.LiquidPreviewDTO::getWeight)
+                        .average()
+                        .orElse(0.0);
+
+        return LiquidConverter.toLiquidPreviewListWithAverageDTO(liquids, averageWeight);
     }
 }
