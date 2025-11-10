@@ -16,8 +16,11 @@ public class Cup {
     @Column(name = "cup_id")
     private Long id;
 
-    // Liquid.addedWeight + 컵 무게
-    private double weight;
+    // 물 + 컵 무게
+    private double weightFirst;
+
+    // 액체 무게 (원래 컵 무게와 액체 버리고 난 다음 컵 무게의 차)
+    private double liquidWeight;
 
     // 액체 감지 여부
     private Boolean hasLiquid;

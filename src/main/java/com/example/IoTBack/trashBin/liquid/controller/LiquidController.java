@@ -59,4 +59,7 @@ public class LiquidController {
         Liquid liquid = liquidService.updateLiquidById(liquidId, updateLiquidDTO);
         return BaseResponse.onSuccess(LiquidConverter.toLiquidPreviewDTO(liquid));
     }
+
+    // 특정 물통 무게 트랜드 조회
+//    @GetMapping("/")
 }
