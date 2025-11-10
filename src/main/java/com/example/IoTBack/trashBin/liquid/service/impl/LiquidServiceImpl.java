@@ -90,13 +90,8 @@ public class LiquidServiceImpl implements LiquidService {
             throw new LiquidHandler(ErrorStatus._NOT_FOUND_LIQUID);
         });
 
-        // addedWeight 업데이트
-        double oldWeight = liquid.getWeight();
-        double newWeight = updateLiquidDTO.getWeight();
-        double addedWeight = (newWeight > oldWeight) ? newWeight-oldWeight: 0;
-
-        // weight 업데이트
-        liquid.update(updateLiquidDTO.getWeight(), addedWeight, LocalDateTime.now());
+        // weight, addedWeight 업데이트
+        updateLiquidWeight(liquid, updateLiquidDTO.getWeight());
         return liquid;
     }
 
@@ -106,13 +101,8 @@ public class LiquidServiceImpl implements LiquidService {
             throw new LiquidHandler(ErrorStatus._NOT_FOUND_LIQUID);
         });
 
-        // addedWeight 업데이트
-        double oldWeight = liquid.getWeight();
-        double newWeight = updateLiquidDTO.getWeight();
-        double addedWeight = (newWeight > oldWeight) ? newWeight-oldWeight: 0;
-
-        // weight 업데이트
-        liquid.update(updateLiquidDTO.getWeight(), addedWeight, LocalDateTime.now());
+        // weight, addedWeight 업데이트
+        updateLiquidWeight(liquid, updateLiquidDTO.getWeight());
         return liquid;
     }
 
@@ -199,6 +189,15 @@ public class LiquidServiceImpl implements LiquidService {
                 .points(points)
                 .totalWeight(totalWeight)
                 .build();
+    }
+
+    public void updateLiquidWeight(Liquid liquid, double newWeight) {
+        // addedWeight 업데이트
+        double oldWeight = liquid.getWeight();
+        double addedWeight = (newWeight > oldWeight) ? newWeight-oldWeight: 0;
+
+        // weight 업데이트
+        liquid.update(newWeight, addedWeight, LocalDateTime.now());
     }
 }
 
