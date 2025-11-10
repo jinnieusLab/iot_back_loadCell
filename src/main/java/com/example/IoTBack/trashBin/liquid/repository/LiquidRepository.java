@@ -4,8 +4,16 @@ import com.example.IoTBack.trashBin.bin.domain.Bin;
 import com.example.IoTBack.trashBin.liquid.domain.Liquid;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 public interface LiquidRepository extends JpaRepository<Liquid, Long> {
     Optional<Liquid> findByBin(Bin bin);
+
+    List<Liquid> findByBinIdAndMeasuredAtBetweenOrderByMeasuredAtAsc(
+            Long binId,
+            LocalDateTime start,
+            LocalDateTime end
+    );
 }

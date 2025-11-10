@@ -1,15 +1,17 @@
 package com.example.IoTBack.trashBin.liquid.controller;
 
 import com.example.IoTBack.global.apiPayload.BaseResponse;
+import com.example.IoTBack.global.PeriodType;
 import com.example.IoTBack.trashBin.liquid.converter.LiquidConverter;
 import com.example.IoTBack.trashBin.liquid.domain.Liquid;
 import com.example.IoTBack.trashBin.liquid.dto.request.LiquidRequestDTO;
 import com.example.IoTBack.trashBin.liquid.dto.response.LiquidResponseDTO;
 import com.example.IoTBack.trashBin.liquid.service.LiquidService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.time.LocalDate;
 
 @RestController
 @RequiredArgsConstructor
@@ -60,6 +62,13 @@ public class LiquidController {
         return BaseResponse.onSuccess(LiquidConverter.toLiquidPreviewDTO(liquid));
     }
 
-    // 특정 물통 무게 트랜드 조회
-//    @GetMapping("/")
+    // 특정 물통 누적 총합 트렌드 조회 (by binId) (월별, 주별, 일별)
+    @GetMapping("/by-bin/{binId}/timeline")
+    public BaseResponse<LiquidResponseDTO.LiquidTotalTrendDTO> readLiquidTotalTrend(@PathVariable Long binId,
+                                                                                    @RequestParam(name = "period", defaultValue = "daily") PeriodType period,
+                                                                                    @RequestParam(name = "date", required = false)
+                                                                                    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        LiquidResponseDTO.LiquidTotalTrendDTO liquidTotalTrend = liquidService.readLiquidTotalTrend(binId, period, date);
+        return BaseResponse.onSuccess(liquidTotalTrend);
+    }
 }

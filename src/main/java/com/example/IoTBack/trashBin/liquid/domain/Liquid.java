@@ -39,8 +39,9 @@ public class Liquid {
         this.bin = bin;
     }
 
-    public void update(double weight) {
+    public void update(double weight, double addedWeight, LocalDateTime measuredAt) {
         this.weight = weight;
+        this.addedWeight = addedWeight;
         this.measuredAt = LocalDateTime.now();
     }
 }

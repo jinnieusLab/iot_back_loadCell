@@ -1,6 +1,7 @@
 package com.example.IoTBack.trashBin.liquid.service.impl;
 
 
+import com.example.IoTBack.global.PeriodType;
 import com.example.IoTBack.global.apiPayload.code.status.ErrorStatus;
 import com.example.IoTBack.global.apiPayload.exception.handler.BinHandler;
 import com.example.IoTBack.global.apiPayload.exception.handler.LiquidHandler;
@@ -16,7 +17,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.WeekFields;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -84,7 +90,13 @@ public class LiquidServiceImpl implements LiquidService {
             throw new LiquidHandler(ErrorStatus._NOT_FOUND_LIQUID);
         });
 
-        liquid.update(updateLiquidDTO.getWeight());
+        // addedWeight 업데이트
+        double oldWeight = liquid.getWeight();
+        double newWeight = updateLiquidDTO.getWeight();
+        double addedWeight = (newWeight > oldWeight) ? newWeight-oldWeight: 0;
+
+        // weight 업데이트
+        liquid.update(updateLiquidDTO.getWeight(), addedWeight, LocalDateTime.now());
         return liquid;
     }
 
@@ -94,8 +106,99 @@ public class LiquidServiceImpl implements LiquidService {
             throw new LiquidHandler(ErrorStatus._NOT_FOUND_LIQUID);
         });
 
-        liquid.update(updateLiquidDTO.getWeight());
+        // addedWeight 업데이트
+        double oldWeight = liquid.getWeight();
+        double newWeight = updateLiquidDTO.getWeight();
+        double addedWeight = (newWeight > oldWeight) ? newWeight-oldWeight: 0;
+
+        // weight 업데이트
+        liquid.update(updateLiquidDTO.getWeight(), addedWeight, LocalDateTime.now());
         return liquid;
+    }
+
+    @Override
+    public LiquidResponseDTO.LiquidTotalTrendDTO readLiquidTotalTrend(Long binId, PeriodType period, LocalDate date) {
+        if (date == null) {
+            date = LocalDate.now();
+        }
+
+        // period에 따라 조회 기간(start, end) 계산
+        LocalDateTime start;
+        LocalDateTime end;
+
+        switch (period) {
+            // 월별 조회
+            case MONTHLY -> {
+                LocalDate firstDay = date.withDayOfMonth(1);
+                start = firstDay.atStartOfDay();
+                end = firstDay.plusMonths(1).atStartOfDay();
+            }
+            // 주별 조회
+            case WEEKLY -> {
+                WeekFields wf = WeekFields.ISO;
+                LocalDate firstDayOfWeek = date.with(wf.dayOfWeek(), 1); // 월요일 기준
+                start = firstDayOfWeek.atStartOfDay();
+                end = firstDayOfWeek.plusWeeks(1).atStartOfDay();
+            }
+            // 하루 조회
+            case DAILY -> {
+                start = date.atStartOfDay();
+                end = start.plusDays(1);
+            }
+            default -> throw new IllegalArgumentException("Unsupported period: " + period);
+        }
+
+        // DB에서 해당 기간의 Liquid 데이터 조회
+        List<Liquid> liquids = liquidRepository
+                .findByBinIdAndMeasuredAtBetweenOrderByMeasuredAtAsc(binId, start, end);
+        Map<String, Double> bucketTotals = new LinkedHashMap<>();
+
+        // addedWeight 합산
+        for (Liquid liquid : liquids) {
+            LocalDateTime measuredAt = liquid.getMeasuredAt();
+            if (measuredAt == null) continue;
+
+            String key;
+            switch (period) {
+                case MONTHLY -> {
+                    // 날짜별 (예: 2025-11-10)
+                    key = measuredAt.toLocalDate().toString();
+                }
+                case WEEKLY -> {
+                    // 날짜별 (주 내 날짜들)
+                    key = measuredAt.toLocalDate().toString();
+                }
+                case DAILY -> {
+                    // 시간별 (예: 13:00)
+                    int hour = measuredAt.getHour();
+                    key = String.format("%02d:00", hour);
+                }
+                default -> throw new IllegalStateException("Unexpected value: " + period);
+            }
+
+            double added = liquid.getAddedWeight() != 0 ? liquid.getAddedWeight() : 0.0;
+            bucketTotals.merge(key, added, Double::sum);
+        }
+
+        // 구간별 포인트 리스트 생성
+        List<LiquidResponseDTO.LiquidTotalTrendPointDTO> points = bucketTotals.entrySet().stream()
+                .map(e -> LiquidResponseDTO.LiquidTotalTrendPointDTO.builder()
+                        .label(e.getKey())
+                        .totalWeight(e.getValue())
+                        .build())
+                .toList();
+
+        // 전체 누적 합 계산
+        double totalWeight = bucketTotals.values().stream()
+                .mapToDouble(Double::doubleValue)
+                .sum();
+
+        return LiquidResponseDTO.LiquidTotalTrendDTO.builder()
+                .binId(binId)
+                .period(period)
+                .points(points)
+                .totalWeight(totalWeight)
+                .build();
     }
 }
 

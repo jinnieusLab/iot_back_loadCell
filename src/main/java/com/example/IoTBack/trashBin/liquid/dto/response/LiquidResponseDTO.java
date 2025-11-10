@@ -1,5 +1,6 @@
 package com.example.IoTBack.trashBin.liquid.dto.response;
 
+import com.example.IoTBack.global.PeriodType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -38,5 +39,26 @@ public class LiquidResponseDTO {
     public static class LiquidPreviewListWithAverageDTO {
         List<LiquidPreviewDTO> liquidPreviewDTOs;
         private double averageWeight;
+    }
+
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public static class LiquidTotalTrendPointDTO {
+        private String label; // 구간
+        private double totalWeight; // 해당 구간(1일/1시간) 누적 무게 합
+    }
+
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public static class LiquidTotalTrendDTO {
+        private Long binId;
+        private Long liquidId;
+        private PeriodType period;
+        private List<LiquidTotalTrendPointDTO> points;
+        private double totalWeight; // // 전체 누적 무게 합
     }
 }
