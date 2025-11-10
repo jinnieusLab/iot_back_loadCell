@@ -10,4 +10,9 @@ public class LiquidRequestDTO {
     public static class CreateLiquidDTO {
         private double weight;
     }
+
+    @Getter
+    public static class UpdateLiquidDTO {
+        private double weight;
+    }
 }

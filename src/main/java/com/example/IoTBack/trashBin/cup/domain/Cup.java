@@ -19,7 +19,7 @@ public class Cup {
     // Liquid.addedWeight + 컵 무게
     private double weight;
 
-    // 액체 감지 여부 (컵 투입 시 true)
+    // 액체 감지 여부
     private Boolean hasLiquid;
 
     // 기타 센서값 추가...

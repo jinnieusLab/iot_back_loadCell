@@ -15,4 +15,6 @@ public interface LiquidService {
     Liquid readLiquidById(Long liquidId);
 
     LiquidResponseDTO.LiquidPreviewListWithAverageDTO readLiquids();
+
+    Liquid updateLiquidByBinId(Long binId, LiquidRequestDTO.UpdateLiquidDTO updateLiquidDTO);
 }

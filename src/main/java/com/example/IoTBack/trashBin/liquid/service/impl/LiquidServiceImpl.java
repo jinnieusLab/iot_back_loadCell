@@ -73,4 +73,19 @@ public class LiquidServiceImpl implements LiquidService {
 
         return LiquidConverter.toLiquidPreviewListWithAverageDTO(liquids, averageWeight);
     }
+
+    @Override
+    public Liquid updateLiquidByBinId(Long binId, LiquidRequestDTO.UpdateLiquidDTO updateLiquidDTO) {
+        Bin bin = binRepository.findById(binId).orElseThrow(() -> {
+            throw new BinHandler(ErrorStatus._NOT_FOUND_BIN);
+        });
+
+        Liquid liquid = liquidRepository.findByBin(bin).orElseThrow(() -> {
+            throw new LiquidHandler(ErrorStatus._NOT_FOUND_LIQUID);
+        });
+
+        liquid.update(updateLiquidDTO.getWeight());
+        return liquid;
+    }
 }
+

@@ -45,4 +45,11 @@ public class LiquidController {
         LiquidResponseDTO.LiquidPreviewListWithAverageDTO liquidsWithAverage = liquidService.readLiquids();
         return BaseResponse.onSuccess(liquidsWithAverage);
     }
+
+    // 특정 물통 무게 수정 (by binId)
+    @PatchMapping("/by-bin/{binId}")
+    public BaseResponse<LiquidResponseDTO.LiquidPreviewDTO> updateLiquidByBinId(@PathVariable Long binId, @RequestBody LiquidRequestDTO.UpdateLiquidDTO updateLiquidDTO) {
+        Liquid liquid = liquidService.updateLiquidByBinId(binId, updateLiquidDTO);
+        return BaseResponse.onSuccess(LiquidConverter.toLiquidPreviewDTO(liquid));
+    }
 }

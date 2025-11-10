@@ -38,4 +38,8 @@ public class Liquid {
     public void setBin(Bin bin) {
         this.bin = bin;
     }
+
+    public void update(double weight) {
+        this.weight = weight;
+    }
 }
