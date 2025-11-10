@@ -138,6 +138,12 @@ public class LiquidServiceImpl implements LiquidService {
             default -> throw new IllegalArgumentException("Unsupported period: " + period);
         }
 
+        // 시간 구간 이전 마지막 값 찾기 (prevWeight 계산용)
+        double prevWeight = liquidRepository
+                .findTopByBinIdAndMeasuredAtBeforeOrderByMeasuredAtDesc(binId, start)
+                .map(Liquid::getWeight)
+                .orElse(0.0);
+
         // DB에서 해당 기간의 Liquid 데이터 조회
         List<Liquid> liquids = liquidRepository
                 .findByBinIdAndMeasuredAtBetweenOrderByMeasuredAtAsc(binId, start, end);
@@ -147,6 +153,14 @@ public class LiquidServiceImpl implements LiquidService {
         for (Liquid liquid : liquids) {
             LocalDateTime measuredAt = liquid.getMeasuredAt();
             if (measuredAt == null) continue;
+
+            double newWeight = liquid.getWeight();
+            double delta = newWeight - prevWeight;
+
+            // 비워서 줄어든 경우(음수)는 "증가량"에 포함하지 않음
+            if (delta < 0) {
+                delta = 0;
+            }
 
             String key;
             switch (period) {
@@ -166,8 +180,11 @@ public class LiquidServiceImpl implements LiquidService {
                 default -> throw new IllegalStateException("Unexpected value: " + period);
             }
 
-            double added = liquid.getAddedWeight() != 0 ? liquid.getAddedWeight() : 0.0;
-            bucketTotals.merge(key, added, Double::sum);
+            if (delta > 0) {
+                bucketTotals.merge(key, delta, Double::sum);
+            }
+
+            prevWeight = newWeight;
         }
 
         // 구간별 포인트 리스트 생성
@@ -185,6 +202,7 @@ public class LiquidServiceImpl implements LiquidService {
 
         return LiquidResponseDTO.LiquidTotalTrendDTO.builder()
                 .binId(binId)
+                .liquidId(liquids.get(0).getId())
                 .period(period)
                 .points(points)
                 .totalWeight(totalWeight)

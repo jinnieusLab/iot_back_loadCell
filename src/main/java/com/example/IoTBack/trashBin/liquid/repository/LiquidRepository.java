@@ -16,4 +16,10 @@ public interface LiquidRepository extends JpaRepository<Liquid, Long> {
             LocalDateTime start,
             LocalDateTime end
     );
+
+    // 범위 시작 이전 마지막 측정값 (이전 weight를 알기 위함)
+    Optional<Liquid> findTopByBinIdAndMeasuredAtBeforeOrderByMeasuredAtDesc(
+            Long binId,
+            LocalDateTime before
+    );
 }
