@@ -124,11 +124,54 @@ public class LiquidServiceImpl implements LiquidService {
             throw new BinHandler(ErrorStatus._NOT_FOUND_BIN);
         });
 
+        // period에 맞는 liquid 리스트 찾기
+        List<LiquidHistory> histories = findLiquidsByDate(binId, period, date);
+
+        // Converter에서 mode에 따라 변환
+        return LiquidConverter.toLiquidTrendDTO(binId, histories, period, mode);
+    }
+
+    @Override
+    public Object readLiquidTrendById(Long liquidId, PeriodType period, LocalDate date, TrendMode mode) {
+        Liquid liquid = liquidRepository.findById(liquidId).orElseThrow(() -> {
+            throw new LiquidHandler(ErrorStatus._NOT_FOUND_LIQUID);
+        });
+
+        Long binId = liquid.getBin().getId();
+        // period에 맞는 liquid 리스트 찾기
+        List<LiquidHistory> histories = findLiquidsByDate(binId, period, date);
+
+        // Converter에서 mode에 따라 변환
+        return LiquidConverter.toLiquidTrendDTO(binId, histories, period, mode);
+    }
+
+    public void updateLiquidWeight(Liquid liquid, double newWeight) {
+        // addedWeight 업데이트
+        double oldWeight = liquid.getWeight();
+        double addedWeight = (newWeight > oldWeight) ? newWeight-oldWeight: 0;
+
+        // weight 업데이트
+        liquid.update(newWeight, addedWeight, LocalDateTime.now());
+    }
+
+    public void addLiquidHistory(Liquid liquid) {
+        LiquidHistory history = LiquidHistory.builder()
+                .bin(liquid.getBin())
+                .liquid(liquid)
+                .weight(liquid.getWeight())
+                .addedWeight(liquid.getAddedWeight())
+                .measuredAt(LocalDateTime.now())
+                .build();
+
+        liquidHistoryRepository.save(history);
+    }
+
+    public List<LiquidHistory> findLiquidsByDate(Long binId, PeriodType period, LocalDate date) {
         if (date == null) {
             date = LocalDate.now();
         }
 
-        // 1) period에 따라 조회 기간(start, end) 계산
+        // period에 따라 조회 기간(start, end) 계산
         LocalDateTime start;
         LocalDateTime end;
 
@@ -151,46 +194,8 @@ public class LiquidServiceImpl implements LiquidService {
             default -> throw new IllegalArgumentException("Unsupported period: " + period);
         }
 
-        // 2) 기간 내 LiquidHistory 조회
-        // 필드가 `Bin bin;` 라면 메서드는 보통 findByBin_Id... 로 가는 게 안전함
-        List<LiquidHistory> histories = liquidHistoryRepository
-                .findByBinIdAndMeasuredAtBetweenOrderByMeasuredAtAsc(binId, start, end);
-
-        // 3) Converter에서 mode에 따라 변환
-        return LiquidConverter.toLiquidTrendDTO(binId, histories, period, mode);
-    }
-
-    @Override
-    public LiquidResponseDTO.LiquidTotalTrendDTO readLiquidTotalTrendById(Long liquidId, PeriodType period, LocalDate date) {
-        Liquid liquid = liquidRepository.findById(liquidId).orElseThrow(() -> {
-            throw new LiquidHandler(ErrorStatus._NOT_FOUND_LIQUID);
-        });
-
-        Long binId = liquid.getBin().getId();
-
-//        return computeLiquidTrend(binId, period, date);
-        return null;
-    }
-
-    public void updateLiquidWeight(Liquid liquid, double newWeight) {
-        // addedWeight 업데이트
-        double oldWeight = liquid.getWeight();
-        double addedWeight = (newWeight > oldWeight) ? newWeight-oldWeight: 0;
-
-        // weight 업데이트
-        liquid.update(newWeight, addedWeight, LocalDateTime.now());
-    }
-
-    public void addLiquidHistory(Liquid liquid) {
-        LiquidHistory history = LiquidHistory.builder()
-                .bin(liquid.getBin())
-                .liquid(liquid)
-                .weight(liquid.getWeight())
-                .addedWeight(liquid.getAddedWeight())
-                .measuredAt(LocalDateTime.now())
-                .build();
-
-        liquidHistoryRepository.save(history);
+        // 기간 내 LiquidHistory 조회
+        return liquidHistoryRepository.findByBinIdAndMeasuredAtBetweenOrderByMeasuredAtAsc(binId, start, end);
     }
 }
 

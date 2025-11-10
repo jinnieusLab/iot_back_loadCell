@@ -80,6 +80,6 @@ public class LiquidResponseDTO {
         private Long liquidId;
         private PeriodType period;
         private List<LiquidTotalTrendPointDTO> points;
-        private double totalWeight; // // 전체 누적 무게 합
+        private double totalWeight; // 전체 누적 무게 합
     }
 }

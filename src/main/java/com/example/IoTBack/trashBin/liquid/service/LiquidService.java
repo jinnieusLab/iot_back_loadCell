@@ -24,5 +24,5 @@ public interface LiquidService {
 
     Object readLiquidTrendByBinId(Long binId, PeriodType period, LocalDate date, TrendMode mode);
 
-    LiquidResponseDTO.LiquidTotalTrendDTO readLiquidTotalTrendById(Long liquidId, PeriodType period, LocalDate date);
+    Object readLiquidTrendById(Long liquidId, PeriodType period, LocalDate date, TrendMode mode);
 }

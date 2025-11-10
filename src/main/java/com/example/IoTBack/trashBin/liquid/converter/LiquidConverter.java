@@ -9,7 +9,6 @@ import com.example.IoTBack.trashBin.liquid.dto.request.LiquidRequestDTO;
 import com.example.IoTBack.trashBin.liquid.dto.response.LiquidResponseDTO;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,17 +47,8 @@ public class LiquidConverter {
                 .build();
     }
 
-    public static LiquidResponseDTO.LiquidHistoryPreviewDTO toLiquidHistoryPreviewDTO(LiquidHistory liquid) {
-        return LiquidResponseDTO.LiquidHistoryPreviewDTO.builder()
-                .id(liquid.getId())
-                .weight(liquid.getWeight())
-                .measuredAt(liquid.getMeasuredAt())
-                .overload(liquid.getOverload())
-                .binId(liquid.getBin().getId())
-                .build();
-    }
-
     public static Object toLiquidTrendDTO(Long binId, List<LiquidHistory> histories, PeriodType period, TrendMode mode) {
+        // mode TREND (기간동안 변화한 물통 무게 트렌드)
         if (mode == TrendMode.TREND) {
             List<LiquidResponseDTO.LiquidHistoryPreviewDTO> liquidHistoryPreviewDTOs = histories.stream()
                     .map(h -> LiquidResponseDTO.LiquidHistoryPreviewDTO.builder()
@@ -76,7 +66,7 @@ public class LiquidConverter {
                     .build();
         }
 
-        // Mode가 Cumulative
+        // mode CUMULATIVE (기간 내 물통에 모인 액체 무게 누적합 트렌드)
         Map<String, Double> bucketTotals = new LinkedHashMap<>();
         double prevWeight = 0;
 
