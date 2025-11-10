@@ -119,7 +119,7 @@ public class LiquidServiceImpl implements LiquidService {
     }
 
     @Override
-    public LiquidResponseDTO.LiquidTrendDTO readLiquidTrendByBinId(Long binId, PeriodType period, LocalDate date, TrendMode mode) {
+    public Object readLiquidTrendByBinId(Long binId, PeriodType period, LocalDate date, TrendMode mode) {
         binRepository.findById(binId).orElseThrow(() -> {
             throw new BinHandler(ErrorStatus._NOT_FOUND_BIN);
         });
@@ -157,7 +157,7 @@ public class LiquidServiceImpl implements LiquidService {
                 .findByBinIdAndMeasuredAtBetweenOrderByMeasuredAtAsc(binId, start, end);
 
         // 3) Converter에서 mode에 따라 변환
-        return LiquidConverter.toLiquidTrendDTO(histories, period, mode);
+        return LiquidConverter.toLiquidTrendDTO(binId, histories, period, mode);
     }
 
     @Override

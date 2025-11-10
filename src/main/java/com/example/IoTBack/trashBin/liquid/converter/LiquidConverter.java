@@ -8,8 +8,11 @@ import com.example.IoTBack.trashBin.liquid.domain.LiquidHistory;
 import com.example.IoTBack.trashBin.liquid.dto.request.LiquidRequestDTO;
 import com.example.IoTBack.trashBin.liquid.dto.response.LiquidResponseDTO;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class LiquidConverter {
     public static Liquid toLiquid(LiquidRequestDTO.CreateLiquidDTO createLiquidDTO) {
@@ -55,39 +58,67 @@ public class LiquidConverter {
                 .build();
     }
 
-    public static LiquidResponseDTO.LiquidTrendDTO toLiquidTrendDTO(List<LiquidHistory> histories, PeriodType period, TrendMode mode) {
-        List<LiquidResponseDTO.LiquidHistoryPreviewDTO> points = new ArrayList<>();
-
+    public static Object toLiquidTrendDTO(Long binId, List<LiquidHistory> histories, PeriodType period, TrendMode mode) {
         if (mode == TrendMode.TREND) {
-            // 단순 트렌드: 각각의 측정 weight 그대로 사용
-            points = histories.stream()
-                    .map(LiquidConverter::toLiquidHistoryPreviewDTO)
+            List<LiquidResponseDTO.LiquidHistoryPreviewDTO> liquidHistoryPreviewDTOs = histories.stream()
+                    .map(h -> LiquidResponseDTO.LiquidHistoryPreviewDTO.builder()
+                            .id(h.getId())
+                            .weight(h.getWeight())
+                            .measuredAt(h.getMeasuredAt())
+                            .overload(h.getOverload())
+                            .binId(h.getBin().getId())
+                            .build())
                     .toList();
+
+            return LiquidResponseDTO.LiquidTrendDTO.builder()
+                    .liquidHistoryPreviewDTOs(liquidHistoryPreviewDTOs)
+                    .period(period)
+                    .build();
         }
 
-        else {
-            // 누적합: addedWeight를 누적해서 weight에 넣어줌
-            double accumulatedTotal = 0.0;
+        // Mode가 Cumulative
+        Map<String, Double> bucketTotals = new LinkedHashMap<>();
+        double prevWeight = 0;
 
-            for (LiquidHistory h : histories) {
-                double addedWeight = h.getAddedWeight() != 0 ? h.getAddedWeight() : 0.0;
-                accumulatedTotal += addedWeight;
+        for (LiquidHistory h : histories) {
+            LocalDateTime measuredAt = h.getMeasuredAt();
+            if (measuredAt == null) continue;
 
-                points.add(
-                        LiquidResponseDTO.LiquidHistoryPreviewDTO.builder()
-                                .id(h.getId())
-                                .weight(accumulatedTotal)              // 누적합
-                                .measuredAt(h.getMeasuredAt())
-                                .overload(h.getOverload())
-                                .binId(h.getBin().getId())
-                                .build()
-                );
-            }
+            double newWeight = h.getWeight();
+            double delta = newWeight - prevWeight;
+
+            if (delta < 0) delta = 0;
+
+            String key = switch (period) {
+                case MONTHLY, WEEKLY -> measuredAt.toLocalDate().toString(); // ex) 2025-11-12
+                case DAILY -> String.format("%02d:00", measuredAt.getHour()); // ex) 13:00
+            };
+
+            if (delta > 0)
+                bucketTotals.merge(key, delta, Double::sum);
+
+            prevWeight = newWeight;
         }
 
-        return LiquidResponseDTO.LiquidTrendDTO.builder()
-                .liquidHistoryPreviewDTOs(points)
+        List<LiquidResponseDTO.LiquidTotalTrendPointDTO> points = bucketTotals.entrySet().stream()
+                .map(e -> LiquidResponseDTO.LiquidTotalTrendPointDTO.builder()
+                        .label(e.getKey())
+                        .totalWeight(e.getValue())
+                        .build())
+                .toList();
+
+        double totalWeight = bucketTotals.values().stream()
+                .mapToDouble(Double::doubleValue)
+                .sum();
+
+        Long liquidId = histories.isEmpty() ? null : histories.get(0).getId();
+
+        return LiquidResponseDTO.LiquidTotalTrendDTO.builder()
+                .binId(binId)
+                .liquidId(liquidId)
                 .period(period)
+                .points(points)
+                .totalWeight(totalWeight)
                 .build();
     }
 }

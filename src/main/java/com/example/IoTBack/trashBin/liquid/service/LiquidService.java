@@ -22,7 +22,7 @@ public interface LiquidService {
 
     Liquid updateLiquidById(Long liquidId, LiquidRequestDTO.UpdateLiquidDTO updateLiquidDTO);
 
-    LiquidResponseDTO.LiquidTrendDTO readLiquidTrendByBinId(Long binId, PeriodType period, LocalDate date, TrendMode mode);
+    Object readLiquidTrendByBinId(Long binId, PeriodType period, LocalDate date, TrendMode mode);
 
     LiquidResponseDTO.LiquidTotalTrendDTO readLiquidTotalTrendById(Long liquidId, PeriodType period, LocalDate date);
 }

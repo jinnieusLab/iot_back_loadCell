@@ -65,15 +65,11 @@ public class LiquidController {
 
     // 특정 물통 무게 트렌드 / 누적합 트렌드 조회 (by binId)
     @GetMapping("/by-bin/{binId}/timeline")
-    public BaseResponse<LiquidResponseDTO.LiquidTrendDTO> readLiquidTrendByBinID(
-            @PathVariable Long binId,
-            @RequestParam(name = "period", defaultValue = "DAILY") PeriodType period,
-            @RequestParam(name = "date", required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
-            @RequestParam(name = "mode", defaultValue = "TREND") TrendMode mode
+    public BaseResponse<Object> readLiquidTrendByBinID(@PathVariable Long binId, @RequestParam(name = "period", defaultValue = "DAILY") PeriodType period,
+                                                                                 @RequestParam(name = "date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+                                                                                 @RequestParam(name = "mode", defaultValue = "TREND") TrendMode mode
     ) {
-        LiquidResponseDTO.LiquidTrendDTO liquidTrend =
-                liquidService.readLiquidTrendByBinId(binId, period, date, mode);
+        Object liquidTrend = liquidService.readLiquidTrendByBinId(binId, period, date, mode);
         return BaseResponse.onSuccess(liquidTrend);
     }
 
