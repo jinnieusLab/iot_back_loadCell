@@ -41,5 +41,6 @@ public class Liquid {
 
     public void update(double weight) {
         this.weight = weight;
+        this.measuredAt = LocalDateTime.now();
     }
 }
