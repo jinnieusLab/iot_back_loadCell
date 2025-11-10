@@ -37,7 +37,7 @@ public class LiquidController {
 
     // 특정 물통 정보 조회 (by liquidId)
     @GetMapping("/{liquidId}")
-    public BaseResponse<LiquidResponseDTO.LiquidPreviewDTO> readLiquidBbyId(@PathVariable Long liquidId) {
+    public BaseResponse<LiquidResponseDTO.LiquidPreviewDTO> readLiquidById(@PathVariable Long liquidId) {
         Liquid liquid = liquidService.readLiquidById(liquidId);
         return BaseResponse.onSuccess(LiquidConverter.toLiquidPreviewDTO(liquid));
     }
@@ -61,6 +61,20 @@ public class LiquidController {
     public BaseResponse<LiquidResponseDTO.LiquidPreviewDTO> updateLiquidById(@PathVariable Long liquidId, @RequestBody LiquidRequestDTO.UpdateLiquidDTO updateLiquidDTO) {
         Liquid liquid = liquidService.updateLiquidById(liquidId, updateLiquidDTO);
         return BaseResponse.onSuccess(LiquidConverter.toLiquidPreviewDTO(liquid));
+    }
+
+    // 특정 물통 무게 4kg 이상(80% 이상) 찼는지 여부 조회
+    @GetMapping("/overload/{liquidId}")
+    public BaseResponse<Boolean> isLiquidOverloadedById(@PathVariable Long liquidId) {
+        Boolean overloaded = liquidService.isLiquidOverloadedById(liquidId);
+        return BaseResponse.onSuccess(overloaded);
+    }
+
+    // 물통 무게 4kg 이상(80% 이상) 찬 물통 전체 조회
+    @GetMapping("/overload")
+    public BaseResponse<LiquidResponseDTO.LiquidPreviewListDTO> readLiquidsOverloadedById() {
+        LiquidResponseDTO.LiquidPreviewListDTO liquidPreviewList = liquidService.readLiquidsOverloaded();
+        return BaseResponse.onSuccess(liquidPreviewList);
     }
 
     // 특정 물통 트렌드(시간 구간대별 무게/누적합) 조회 (by binId) (월별, 주별, 일별)

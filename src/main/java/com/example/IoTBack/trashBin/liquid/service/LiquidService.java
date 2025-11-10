@@ -22,6 +22,10 @@ public interface LiquidService {
 
     Liquid updateLiquidById(Long liquidId, LiquidRequestDTO.UpdateLiquidDTO updateLiquidDTO);
 
+    Boolean isLiquidOverloadedById(Long liquidId);
+
+    LiquidResponseDTO.LiquidPreviewListDTO readLiquidsOverloaded();
+
     Object readLiquidTrendByBinId(Long binId, PeriodType period, LocalDate date, TrendMode mode);
 
     Object readLiquidTrendById(Long liquidId, PeriodType period, LocalDate date, TrendMode mode);

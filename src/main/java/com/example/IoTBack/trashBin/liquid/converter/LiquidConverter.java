@@ -32,8 +32,17 @@ public class LiquidConverter {
                 .id(liquid.getId())
                 .weight(liquid.getWeight())
                 .measuredAt(liquid.getMeasuredAt())
-                .overload(liquid.getOverload())
+                .overload(liquid.getOverloaded())
                 .binId(liquid.getBin().getId())
+                .build();
+    }
+
+    public static LiquidResponseDTO.LiquidPreviewListDTO toLiquidPreviewListDTO(List<Liquid> liquids) {
+        List<LiquidResponseDTO.LiquidPreviewDTO> liquidPreviewDTOs = liquids.stream()
+                .map(LiquidConverter::toLiquidPreviewDTO).toList();
+
+        return LiquidResponseDTO.LiquidPreviewListDTO.builder()
+                .liquidPreviewDTOs(liquidPreviewDTOs)
                 .build();
     }
 

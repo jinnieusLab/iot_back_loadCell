@@ -23,9 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.WeekFields;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -119,6 +117,21 @@ public class LiquidServiceImpl implements LiquidService {
     }
 
     @Override
+    public Boolean isLiquidOverloadedById(Long liquidId) {
+        Liquid liquid = liquidRepository.findById(liquidId).orElseThrow(() -> {
+            throw new LiquidHandler(ErrorStatus._NOT_FOUND_LIQUID);
+        });
+
+        return liquid.getOverloaded();
+    }
+
+    @Override
+    public LiquidResponseDTO.LiquidPreviewListDTO readLiquidsOverloaded() {
+        List<Liquid> liquids = liquidRepository.findAllByOverloaded(true);
+        return LiquidConverter.toLiquidPreviewListDTO(liquids);
+    }
+
+    @Override
     public Object readLiquidTrendByBinId(Long binId, PeriodType period, LocalDate date, TrendMode mode) {
         binRepository.findById(binId).orElseThrow(() -> {
             throw new BinHandler(ErrorStatus._NOT_FOUND_BIN);
@@ -150,8 +163,11 @@ public class LiquidServiceImpl implements LiquidService {
         double oldWeight = liquid.getWeight();
         double addedWeight = (newWeight > oldWeight) ? newWeight-oldWeight: 0;
 
-        // weight 업데이트
-        liquid.update(newWeight, addedWeight, LocalDateTime.now());
+        // overloaded 업데이트
+        Boolean overloaded = (newWeight >= 4000);
+
+        // liquid 업데이트
+        liquid.update(newWeight, addedWeight, overloaded, LocalDateTime.now());
     }
 
     public void addLiquidHistory(Liquid liquid) {

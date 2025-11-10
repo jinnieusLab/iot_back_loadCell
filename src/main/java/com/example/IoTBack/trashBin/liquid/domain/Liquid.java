@@ -28,8 +28,8 @@ public class Liquid {
     // 이전 측정값과 비교해 새로 추가된 물의 양
     private double addedWeight;
 
-    // 5kg 초과 여부 혹은 80% 이상 찼는지 여부
-    private Boolean overload = false;
+    // 4kg 초과(혹은 80% 이상 찼는지) 여부
+    private Boolean overloaded = false;
 
     @OneToOne
     @JoinColumn(name = "bin_id")
@@ -39,9 +39,10 @@ public class Liquid {
         this.bin = bin;
     }
 
-    public void update(double weight, double addedWeight, LocalDateTime measuredAt) {
+    public void update(double weight, double addedWeight, boolean overloaded, LocalDateTime measuredAt) {
         this.weight = weight;
         this.addedWeight = addedWeight;
+        this.overloaded = overloaded;
         this.measuredAt = LocalDateTime.now();
     }
 }

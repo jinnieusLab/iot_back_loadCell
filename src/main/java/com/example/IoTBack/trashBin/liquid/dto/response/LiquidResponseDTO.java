@@ -36,6 +36,14 @@ public class LiquidResponseDTO {
     @AllArgsConstructor
     @NoArgsConstructor
     @Builder
+    public static class LiquidPreviewListDTO {
+        List<LiquidPreviewDTO> liquidPreviewDTOs;
+    }
+
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
     public static class LiquidPreviewListWithAverageDTO {
         List<LiquidPreviewDTO> liquidPreviewDTOs;
         private double averageWeight;
