@@ -176,6 +176,7 @@ public class LiquidServiceImpl implements LiquidService {
                 .liquid(liquid)
                 .weight(liquid.getWeight())
                 .addedWeight(liquid.getAddedWeight())
+                .overload(liquid.getOverloaded())
                 .measuredAt(LocalDateTime.now())
                 .build();
 
