@@ -22,6 +22,8 @@ public class LiquidHistory {
 
     private LocalDateTime measuredAt;
 
+    private Boolean overload;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "liquid_id")
     private Liquid liquid;

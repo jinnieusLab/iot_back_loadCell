@@ -1,6 +1,7 @@
 package com.example.IoTBack.trashBin.liquid.dto.response;
 
 import com.example.IoTBack.global.PeriodType;
+import com.example.IoTBack.trashBin.liquid.domain.LiquidHistory;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -45,8 +46,20 @@ public class LiquidResponseDTO {
     @AllArgsConstructor
     @NoArgsConstructor
     @Builder
+    public static class LiquidHistoryPreviewDTO {
+        private Long id;
+        private double weight;
+        private LocalDateTime measuredAt;
+        private Boolean overload;
+        private Long binId;
+    }
+
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
     public static class LiquidTrendDTO {
-        List<LiquidPreviewDTO> liquidPreviewDTOs;
+        List<LiquidHistoryPreviewDTO> liquidHistoryPreviewDTOs;
         private PeriodType period;
     }
 

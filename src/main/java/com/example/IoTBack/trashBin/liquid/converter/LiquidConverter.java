@@ -3,6 +3,7 @@ package com.example.IoTBack.trashBin.liquid.converter;
 
 import com.example.IoTBack.global.PeriodType;
 import com.example.IoTBack.trashBin.liquid.domain.Liquid;
+import com.example.IoTBack.trashBin.liquid.domain.LiquidHistory;
 import com.example.IoTBack.trashBin.liquid.dto.request.LiquidRequestDTO;
 import com.example.IoTBack.trashBin.liquid.dto.response.LiquidResponseDTO;
 
@@ -42,12 +43,22 @@ public class LiquidConverter {
                 .build();
     }
 
-    public static LiquidResponseDTO.LiquidTrendDTO toLiquidTrendDTO(List<Liquid> liquids, PeriodType period) {
-        List<LiquidResponseDTO.LiquidPreviewDTO> liquidPreviewDTOs = liquids.stream()
-                .map(LiquidConverter::toLiquidPreviewDTO).toList();
+    public static LiquidResponseDTO.LiquidHistoryPreviewDTO toLiquidHistoryPreviewDTO(LiquidHistory liquid) {
+        return LiquidResponseDTO.LiquidHistoryPreviewDTO.builder()
+                .id(liquid.getId())
+                .weight(liquid.getWeight())
+                .measuredAt(liquid.getMeasuredAt())
+                .overload(liquid.getOverload())
+                .binId(liquid.getBin().getId())
+                .build();
+    }
+
+    public static LiquidResponseDTO.LiquidTrendDTO toLiquidTrendDTO(List<LiquidHistory> liquids, PeriodType period) {
+        List<LiquidResponseDTO.LiquidHistoryPreviewDTO> liquidHistoryPreviewDTOs = liquids.stream()
+                .map(LiquidConverter::toLiquidHistoryPreviewDTO).toList();
 
         return LiquidResponseDTO.LiquidTrendDTO.builder()
-                .liquidPreviewDTOs(liquidPreviewDTOs)
+                .liquidHistoryPreviewDTOs(liquidHistoryPreviewDTOs)
                 .period(period)
                 .build();
     }

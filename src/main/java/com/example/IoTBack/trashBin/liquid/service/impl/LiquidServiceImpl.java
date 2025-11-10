@@ -199,10 +199,10 @@ public class LiquidServiceImpl implements LiquidService {
         }
 
         // DB에서 해당 기간의 Liquid 데이터 조회
-        List<Liquid> liquids = liquidRepository
+        List<LiquidHistory> liquidHistories = liquidHistoryRepository
                 .findByBinIdAndMeasuredAtBetweenOrderByMeasuredAtAsc(binId, start, end);
 
-        return LiquidConverter.toLiquidTrendDTO(liquids, period);
+        return LiquidConverter.toLiquidTrendDTO(liquidHistories, period);
     }
 
     public LiquidResponseDTO.LiquidTotalTrendDTO computeLiquidTrend(Long binId, PeriodType period, LocalDate date) {
