@@ -52,4 +52,11 @@ public class LiquidController {
         Liquid liquid = liquidService.updateLiquidByBinId(binId, updateLiquidDTO);
         return BaseResponse.onSuccess(LiquidConverter.toLiquidPreviewDTO(liquid));
     }
+
+    // 특정 물통 무게 수정 (by liquidId)
+    @PatchMapping("/{liquidId}")
+    public BaseResponse<LiquidResponseDTO.LiquidPreviewDTO> updateLiquidById(@PathVariable Long liquidId, @RequestBody LiquidRequestDTO.UpdateLiquidDTO updateLiquidDTO) {
+        Liquid liquid = liquidService.updateLiquidById(liquidId, updateLiquidDTO);
+        return BaseResponse.onSuccess(LiquidConverter.toLiquidPreviewDTO(liquid));
+    }
 }

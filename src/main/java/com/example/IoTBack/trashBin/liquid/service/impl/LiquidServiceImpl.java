@@ -87,5 +87,15 @@ public class LiquidServiceImpl implements LiquidService {
         liquid.update(updateLiquidDTO.getWeight());
         return liquid;
     }
+
+    @Override
+    public Liquid updateLiquidById(Long liquidId, LiquidRequestDTO.UpdateLiquidDTO updateLiquidDTO) {
+        Liquid liquid = liquidRepository.findById(liquidId).orElseThrow(() -> {
+            throw new LiquidHandler(ErrorStatus._NOT_FOUND_LIQUID);
+        });
+
+        liquid.update(updateLiquidDTO.getWeight());
+        return liquid;
+    }
 }
 
