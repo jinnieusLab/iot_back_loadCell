@@ -107,7 +107,34 @@ public class LiquidServiceImpl implements LiquidService {
     }
 
     @Override
-    public LiquidResponseDTO.LiquidTotalTrendDTO readLiquidTotalTrend(Long binId, PeriodType period, LocalDate date) {
+    public LiquidResponseDTO.LiquidTotalTrendDTO readLiquidTotalTrendByBinId(Long binId, PeriodType period, LocalDate date) {
+        Bin bin = binRepository.findById(binId).orElseThrow(() -> {
+            throw new BinHandler(ErrorStatus._NOT_FOUND_BIN);
+        });
+        return computeLiquidTrend(binId, period, date);
+    }
+
+    @Override
+    public LiquidResponseDTO.LiquidTotalTrendDTO readLiquidTotalTrendById(Long liquidId, PeriodType period, LocalDate date) {
+        Liquid liquid = liquidRepository.findById(liquidId).orElseThrow(() -> {
+            throw new LiquidHandler(ErrorStatus._NOT_FOUND_LIQUID);
+        });
+
+        Long binId = liquid.getBin().getId();
+
+        return computeLiquidTrend(binId, period, date);
+    }
+
+    public void updateLiquidWeight(Liquid liquid, double newWeight) {
+        // addedWeight 업데이트
+        double oldWeight = liquid.getWeight();
+        double addedWeight = (newWeight > oldWeight) ? newWeight-oldWeight: 0;
+
+        // weight 업데이트
+        liquid.update(newWeight, addedWeight, LocalDateTime.now());
+    }
+
+    public LiquidResponseDTO.LiquidTotalTrendDTO computeLiquidTrend(Long binId, PeriodType period, LocalDate date) {
         if (date == null) {
             date = LocalDate.now();
         }
@@ -200,22 +227,15 @@ public class LiquidServiceImpl implements LiquidService {
                 .mapToDouble(Double::doubleValue)
                 .sum();
 
+        Long liquidId = liquids.isEmpty() ? null : liquids.get(0).getId();
+
         return LiquidResponseDTO.LiquidTotalTrendDTO.builder()
                 .binId(binId)
-                .liquidId(liquids.get(0).getId())
+                .liquidId(liquidId)
                 .period(period)
                 .points(points)
                 .totalWeight(totalWeight)
                 .build();
-    }
-
-    public void updateLiquidWeight(Liquid liquid, double newWeight) {
-        // addedWeight 업데이트
-        double oldWeight = liquid.getWeight();
-        double addedWeight = (newWeight > oldWeight) ? newWeight-oldWeight: 0;
-
-        // weight 업데이트
-        liquid.update(newWeight, addedWeight, LocalDateTime.now());
     }
 }
 
