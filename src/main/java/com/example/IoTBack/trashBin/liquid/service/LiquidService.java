@@ -1,6 +1,7 @@
 package com.example.IoTBack.trashBin.liquid.service;
 
 import com.example.IoTBack.global.PeriodType;
+import com.example.IoTBack.global.TrendMode;
 import com.example.IoTBack.trashBin.liquid.domain.Liquid;
 import com.example.IoTBack.trashBin.liquid.dto.request.LiquidRequestDTO;
 import com.example.IoTBack.trashBin.liquid.dto.response.LiquidResponseDTO;
@@ -21,9 +22,7 @@ public interface LiquidService {
 
     Liquid updateLiquidById(Long liquidId, LiquidRequestDTO.UpdateLiquidDTO updateLiquidDTO);
 
-    LiquidResponseDTO.LiquidTrendDTO readLiquidTrendByBinId(Long binId, PeriodType period, LocalDate date);
-
-    LiquidResponseDTO.LiquidTotalTrendDTO readLiquidTotalTrendByBinId(Long binId, PeriodType period, LocalDate date);
+    LiquidResponseDTO.LiquidTrendDTO readLiquidTrendByBinId(Long binId, PeriodType period, LocalDate date, TrendMode mode);
 
     LiquidResponseDTO.LiquidTotalTrendDTO readLiquidTotalTrendById(Long liquidId, PeriodType period, LocalDate date);
 }

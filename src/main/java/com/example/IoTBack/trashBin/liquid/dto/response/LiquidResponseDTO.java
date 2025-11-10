@@ -1,7 +1,6 @@
 package com.example.IoTBack.trashBin.liquid.dto.response;
 
 import com.example.IoTBack.global.PeriodType;
-import com.example.IoTBack.trashBin.liquid.domain.LiquidHistory;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

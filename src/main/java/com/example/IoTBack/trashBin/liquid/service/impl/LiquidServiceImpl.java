@@ -2,6 +2,7 @@ package com.example.IoTBack.trashBin.liquid.service.impl;
 
 
 import com.example.IoTBack.global.PeriodType;
+import com.example.IoTBack.global.TrendMode;
 import com.example.IoTBack.global.apiPayload.code.status.ErrorStatus;
 import com.example.IoTBack.global.apiPayload.exception.handler.BinHandler;
 import com.example.IoTBack.global.apiPayload.exception.handler.LiquidHandler;
@@ -118,21 +119,45 @@ public class LiquidServiceImpl implements LiquidService {
     }
 
     @Override
-    public LiquidResponseDTO.LiquidTrendDTO readLiquidTrendByBinId(Long binId, PeriodType period, LocalDate date) {
+    public LiquidResponseDTO.LiquidTrendDTO readLiquidTrendByBinId(Long binId, PeriodType period, LocalDate date, TrendMode mode) {
         binRepository.findById(binId).orElseThrow(() -> {
             throw new BinHandler(ErrorStatus._NOT_FOUND_BIN);
         });
 
-        return showLiquidTrend(binId, period, date);
-    }
+        if (date == null) {
+            date = LocalDate.now();
+        }
 
-    @Override
-    public LiquidResponseDTO.LiquidTotalTrendDTO readLiquidTotalTrendByBinId(Long binId, PeriodType period, LocalDate date) {
-        binRepository.findById(binId).orElseThrow(() -> {
-            throw new BinHandler(ErrorStatus._NOT_FOUND_BIN);
-        });
+        // 1) period에 따라 조회 기간(start, end) 계산
+        LocalDateTime start;
+        LocalDateTime end;
 
-        return computeLiquidTrend(binId, period, date);
+        switch (period) {
+            case MONTHLY -> {
+                LocalDate firstDay = date.withDayOfMonth(1);
+                start = firstDay.atStartOfDay();
+                end = firstDay.plusMonths(1).atStartOfDay();
+            }
+            case WEEKLY -> {
+                WeekFields wf = WeekFields.ISO;
+                LocalDate firstDayOfWeek = date.with(wf.dayOfWeek(), 1); // 월요일 기준
+                start = firstDayOfWeek.atStartOfDay();
+                end = firstDayOfWeek.plusWeeks(1).atStartOfDay();
+            }
+            case DAILY -> {
+                start = date.atStartOfDay();
+                end = start.plusDays(1);
+            }
+            default -> throw new IllegalArgumentException("Unsupported period: " + period);
+        }
+
+        // 2) 기간 내 LiquidHistory 조회
+        // 필드가 `Bin bin;` 라면 메서드는 보통 findByBin_Id... 로 가는 게 안전함
+        List<LiquidHistory> histories = liquidHistoryRepository
+                .findByBinIdAndMeasuredAtBetweenOrderByMeasuredAtAsc(binId, start, end);
+
+        // 3) Converter에서 mode에 따라 변환
+        return LiquidConverter.toLiquidTrendDTO(histories, period, mode);
     }
 
     @Override
@@ -143,7 +168,8 @@ public class LiquidServiceImpl implements LiquidService {
 
         Long binId = liquid.getBin().getId();
 
-        return computeLiquidTrend(binId, period, date);
+//        return computeLiquidTrend(binId, period, date);
+        return null;
     }
 
     public void updateLiquidWeight(Liquid liquid, double newWeight) {
@@ -165,148 +191,6 @@ public class LiquidServiceImpl implements LiquidService {
                 .build();
 
         liquidHistoryRepository.save(history);
-    }
-
-    public LiquidResponseDTO.LiquidTrendDTO showLiquidTrend(Long binId, PeriodType period, LocalDate date) {
-        if (date == null) {
-            date = LocalDate.now();
-        }
-
-        // period에 따라 조회 기간(start, end) 계산
-        LocalDateTime start;
-        LocalDateTime end;
-
-        switch (period) {
-            // 월별 조회
-            case MONTHLY -> {
-                LocalDate firstDay = date.withDayOfMonth(1);
-                start = firstDay.atStartOfDay();
-                end = firstDay.plusMonths(1).atStartOfDay();
-            }
-            // 주별 조회
-            case WEEKLY -> {
-                WeekFields wf = WeekFields.ISO;
-                LocalDate firstDayOfWeek = date.with(wf.dayOfWeek(), 1); // 월요일 기준
-                start = firstDayOfWeek.atStartOfDay();
-                end = firstDayOfWeek.plusWeeks(1).atStartOfDay();
-            }
-            // 하루 조회
-            case DAILY -> {
-                start = date.atStartOfDay();
-                end = start.plusDays(1);
-            }
-            default -> throw new IllegalArgumentException("Unsupported period: " + period);
-        }
-
-        // DB에서 해당 기간의 Liquid 데이터 조회
-        List<LiquidHistory> liquidHistories = liquidHistoryRepository
-                .findByBinIdAndMeasuredAtBetweenOrderByMeasuredAtAsc(binId, start, end);
-
-        return LiquidConverter.toLiquidTrendDTO(liquidHistories, period);
-    }
-
-    public LiquidResponseDTO.LiquidTotalTrendDTO computeLiquidTrend(Long binId, PeriodType period, LocalDate date) {
-        if (date == null) {
-            date = LocalDate.now();
-        }
-
-        // period에 따라 조회 기간(start, end) 계산
-        LocalDateTime start;
-        LocalDateTime end;
-
-        switch (period) {
-            // 월별 조회
-            case MONTHLY -> {
-                LocalDate firstDay = date.withDayOfMonth(1);
-                start = firstDay.atStartOfDay();
-                end = firstDay.plusMonths(1).atStartOfDay();
-            }
-            // 주별 조회
-            case WEEKLY -> {
-                WeekFields wf = WeekFields.ISO;
-                LocalDate firstDayOfWeek = date.with(wf.dayOfWeek(), 1); // 월요일 기준
-                start = firstDayOfWeek.atStartOfDay();
-                end = firstDayOfWeek.plusWeeks(1).atStartOfDay();
-            }
-            // 하루 조회
-            case DAILY -> {
-                start = date.atStartOfDay();
-                end = start.plusDays(1);
-            }
-            default -> throw new IllegalArgumentException("Unsupported period: " + period);
-        }
-
-        // 시간 구간 이전 마지막 값 찾기 (prevWeight 계산용)
-        double prevWeight = liquidRepository
-                .findTopByBinIdAndMeasuredAtBeforeOrderByMeasuredAtDesc(binId, start)
-                .map(Liquid::getWeight)
-                .orElse(0.0);
-
-        // DB에서 해당 기간의 Liquid 데이터 조회
-        List<Liquid> liquids = liquidRepository
-                .findByBinIdAndMeasuredAtBetweenOrderByMeasuredAtAsc(binId, start, end);
-        Map<String, Double> bucketTotals = new LinkedHashMap<>();
-
-        // addedWeight 합산
-        for (Liquid liquid : liquids) {
-            LocalDateTime measuredAt = liquid.getMeasuredAt();
-            if (measuredAt == null) continue;
-
-            double newWeight = liquid.getWeight();
-            double delta = newWeight - prevWeight;
-
-            // 비워서 줄어든 경우(음수)는 "증가량"에 포함하지 않음
-            if (delta < 0) {
-                delta = 0;
-            }
-
-            String key;
-            switch (period) {
-                case MONTHLY -> {
-                    // 날짜별 (예: 2025-11-10)
-                    key = measuredAt.toLocalDate().toString();
-                }
-                case WEEKLY -> {
-                    // 날짜별 (주 내 날짜들)
-                    key = measuredAt.toLocalDate().toString();
-                }
-                case DAILY -> {
-                    // 시간별 (예: 13:00)
-                    int hour = measuredAt.getHour();
-                    key = String.format("%02d:00", hour);
-                }
-                default -> throw new IllegalStateException("Unexpected value: " + period);
-            }
-
-            if (delta > 0) {
-                bucketTotals.merge(key, delta, Double::sum);
-            }
-
-            prevWeight = newWeight;
-        }
-
-        // 구간별 포인트 리스트 생성
-        List<LiquidResponseDTO.LiquidTotalTrendPointDTO> points = bucketTotals.entrySet().stream()
-                .map(e -> LiquidResponseDTO.LiquidTotalTrendPointDTO.builder()
-                        .label(e.getKey())
-                        .totalWeight(e.getValue())
-                        .build())
-                .toList();
-
-        // 전체 누적 합 계산
-        double totalWeight = bucketTotals.values().stream()
-                .mapToDouble(Double::doubleValue)
-                .sum();
-
-        Long liquidId = liquids.isEmpty() ? null : liquids.get(0).getId();
-
-        return LiquidResponseDTO.LiquidTotalTrendDTO.builder()
-                .binId(binId)
-                .liquidId(liquidId)
-                .period(period)
-                .points(points)
-                .totalWeight(totalWeight)
-                .build();
     }
 }
 
