@@ -6,7 +6,6 @@ import com.example.IoTBack.trashBin.liquid.dto.request.LiquidRequestDTO;
 import com.example.IoTBack.trashBin.liquid.dto.response.LiquidResponseDTO;
 
 import java.time.LocalDate;
-import java.util.List;
 
 public interface LiquidService {
 
@@ -21,6 +20,8 @@ public interface LiquidService {
     Liquid updateLiquidByBinId(Long binId, LiquidRequestDTO.UpdateLiquidDTO updateLiquidDTO);
 
     Liquid updateLiquidById(Long liquidId, LiquidRequestDTO.UpdateLiquidDTO updateLiquidDTO);
+
+    LiquidResponseDTO.LiquidTrendDTO readLiquidTrendByBinId(Long binId, PeriodType period, LocalDate date);
 
     LiquidResponseDTO.LiquidTotalTrendDTO readLiquidTotalTrendByBinId(Long binId, PeriodType period, LocalDate date);
 

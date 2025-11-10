@@ -27,14 +27,14 @@ public class LiquidController {
         return BaseResponse.onSuccess(LiquidConverter.toCreateLiquidResultDTO(liquid));
     }
 
-    // binId로 liquid 정보 조회
+    // 특정 물통 정보 조회 (by binId)
     @GetMapping("/by-bin/{binId}")
     public BaseResponse<LiquidResponseDTO.LiquidPreviewDTO> readLiquidByBinId(@PathVariable Long binId) {
         Liquid liquid = liquidService.readLiquidByBinId(binId);
         return BaseResponse.onSuccess(LiquidConverter.toLiquidPreviewDTO(liquid));
     }
 
-    // liquidId로 liquid 정보 조회
+    // 특정 물통 정보 조회 (by liquidId)
     @GetMapping("/{liquidId}")
     public BaseResponse<LiquidResponseDTO.LiquidPreviewDTO> readLiquidBbyId(@PathVariable Long liquidId) {
         Liquid liquid = liquidService.readLiquidById(liquidId);
@@ -62,8 +62,17 @@ public class LiquidController {
         return BaseResponse.onSuccess(LiquidConverter.toLiquidPreviewDTO(liquid));
     }
 
-    // 특정 물통 누적 총합 트렌드 조회 (by binId) (월별, 주별, 일별)
+    // 특정 물통 무게 트렌드 조회 (by binId)
     @GetMapping("/by-bin/{binId}/timeline")
+    public BaseResponse<LiquidResponseDTO.LiquidTrendDTO> readLiquidTrendByBinID(@PathVariable Long binId,
+                                                                                 @RequestParam(name = "period", defaultValue = "daily") PeriodType period,
+                                                                                 @RequestParam(name = "date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        LiquidResponseDTO.LiquidTrendDTO liquidTrend = liquidService.readLiquidTrendByBinId(binId, period, date);
+        return BaseResponse.onSuccess(liquidTrend);
+    }
+
+    // 특정 물통 누적 총합 트렌드 조회 (by binId) (월별, 주별, 일별)
+    @GetMapping("/by-bin/{binId}/total/timeline")
     public BaseResponse<LiquidResponseDTO.LiquidTotalTrendDTO> readLiquidTotalTrendByBinId(@PathVariable Long binId,
                                                                                     @RequestParam(name = "period", defaultValue = "daily") PeriodType period,
                                                                                     @RequestParam(name = "date", required = false)
@@ -73,7 +82,7 @@ public class LiquidController {
     }
 
     // 특정 물통 누적 총합 트렌드 조회 (by liquidId) (월별, 주별, 일별)
-    @GetMapping("/{liquidId}/timeline")
+    @GetMapping("/{liquidId}/total/timeline")
     public BaseResponse<LiquidResponseDTO.LiquidTotalTrendDTO> readLiquidTotalTrendById(@PathVariable Long liquidId,
                                                                                     @RequestParam(name = "period", defaultValue = "daily") PeriodType period,
                                                                                     @RequestParam(name = "date", required = false)

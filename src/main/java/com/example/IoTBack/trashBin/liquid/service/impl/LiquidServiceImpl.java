@@ -9,8 +9,10 @@ import com.example.IoTBack.trashBin.bin.domain.Bin;
 import com.example.IoTBack.trashBin.bin.repository.BinRepository;
 import com.example.IoTBack.trashBin.liquid.converter.LiquidConverter;
 import com.example.IoTBack.trashBin.liquid.domain.Liquid;
+import com.example.IoTBack.trashBin.liquid.domain.LiquidHistory;
 import com.example.IoTBack.trashBin.liquid.dto.request.LiquidRequestDTO;
 import com.example.IoTBack.trashBin.liquid.dto.response.LiquidResponseDTO;
+import com.example.IoTBack.trashBin.liquid.repository.LiquidHistoryRepository;
 import com.example.IoTBack.trashBin.liquid.repository.LiquidRepository;
 import com.example.IoTBack.trashBin.liquid.service.LiquidService;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +32,7 @@ import java.util.Map;
 public class LiquidServiceImpl implements LiquidService {
     private final LiquidRepository liquidRepository;
     private final BinRepository binRepository;
+    private final LiquidHistoryRepository liquidHistoryRepository;
 
     @Override
     public Liquid createLiquid(Long binId, LiquidRequestDTO.CreateLiquidDTO createLiquidDTO) {
@@ -92,6 +95,10 @@ public class LiquidServiceImpl implements LiquidService {
 
         // weight, addedWeight 업데이트
         updateLiquidWeight(liquid, updateLiquidDTO.getWeight());
+
+        // LiquidHistory 기록 추가
+        addLiquidHistory(liquid);
+
         return liquid;
     }
 
@@ -103,14 +110,28 @@ public class LiquidServiceImpl implements LiquidService {
 
         // weight, addedWeight 업데이트
         updateLiquidWeight(liquid, updateLiquidDTO.getWeight());
+
+        // LiquidHistory 기록 추가
+        addLiquidHistory(liquid);
+
         return liquid;
     }
 
     @Override
-    public LiquidResponseDTO.LiquidTotalTrendDTO readLiquidTotalTrendByBinId(Long binId, PeriodType period, LocalDate date) {
-        Bin bin = binRepository.findById(binId).orElseThrow(() -> {
+    public LiquidResponseDTO.LiquidTrendDTO readLiquidTrendByBinId(Long binId, PeriodType period, LocalDate date) {
+        binRepository.findById(binId).orElseThrow(() -> {
             throw new BinHandler(ErrorStatus._NOT_FOUND_BIN);
         });
+
+        return showLiquidTrend(binId, period, date);
+    }
+
+    @Override
+    public LiquidResponseDTO.LiquidTotalTrendDTO readLiquidTotalTrendByBinId(Long binId, PeriodType period, LocalDate date) {
+        binRepository.findById(binId).orElseThrow(() -> {
+            throw new BinHandler(ErrorStatus._NOT_FOUND_BIN);
+        });
+
         return computeLiquidTrend(binId, period, date);
     }
 
@@ -132,6 +153,56 @@ public class LiquidServiceImpl implements LiquidService {
 
         // weight 업데이트
         liquid.update(newWeight, addedWeight, LocalDateTime.now());
+    }
+
+    public void addLiquidHistory(Liquid liquid) {
+        LiquidHistory history = LiquidHistory.builder()
+                .bin(liquid.getBin())
+                .liquid(liquid)
+                .weight(liquid.getWeight())
+                .addedWeight(liquid.getAddedWeight())
+                .measuredAt(LocalDateTime.now())
+                .build();
+
+        liquidHistoryRepository.save(history);
+    }
+
+    public LiquidResponseDTO.LiquidTrendDTO showLiquidTrend(Long binId, PeriodType period, LocalDate date) {
+        if (date == null) {
+            date = LocalDate.now();
+        }
+
+        // period에 따라 조회 기간(start, end) 계산
+        LocalDateTime start;
+        LocalDateTime end;
+
+        switch (period) {
+            // 월별 조회
+            case MONTHLY -> {
+                LocalDate firstDay = date.withDayOfMonth(1);
+                start = firstDay.atStartOfDay();
+                end = firstDay.plusMonths(1).atStartOfDay();
+            }
+            // 주별 조회
+            case WEEKLY -> {
+                WeekFields wf = WeekFields.ISO;
+                LocalDate firstDayOfWeek = date.with(wf.dayOfWeek(), 1); // 월요일 기준
+                start = firstDayOfWeek.atStartOfDay();
+                end = firstDayOfWeek.plusWeeks(1).atStartOfDay();
+            }
+            // 하루 조회
+            case DAILY -> {
+                start = date.atStartOfDay();
+                end = start.plusDays(1);
+            }
+            default -> throw new IllegalArgumentException("Unsupported period: " + period);
+        }
+
+        // DB에서 해당 기간의 Liquid 데이터 조회
+        List<Liquid> liquids = liquidRepository
+                .findByBinIdAndMeasuredAtBetweenOrderByMeasuredAtAsc(binId, start, end);
+
+        return LiquidConverter.toLiquidTrendDTO(liquids, period);
     }
 
     public LiquidResponseDTO.LiquidTotalTrendDTO computeLiquidTrend(Long binId, PeriodType period, LocalDate date) {

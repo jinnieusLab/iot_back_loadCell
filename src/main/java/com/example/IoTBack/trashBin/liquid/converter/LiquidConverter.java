@@ -1,6 +1,7 @@
 package com.example.IoTBack.trashBin.liquid.converter;
 
 
+import com.example.IoTBack.global.PeriodType;
 import com.example.IoTBack.trashBin.liquid.domain.Liquid;
 import com.example.IoTBack.trashBin.liquid.dto.request.LiquidRequestDTO;
 import com.example.IoTBack.trashBin.liquid.dto.response.LiquidResponseDTO;
@@ -38,6 +39,16 @@ public class LiquidConverter {
         return LiquidResponseDTO.LiquidPreviewListWithAverageDTO.builder()
                 .liquidPreviewDTOs(liquidPreviewDTOs)
                 .averageWeight(averageWeight)
+                .build();
+    }
+
+    public static LiquidResponseDTO.LiquidTrendDTO toLiquidTrendDTO(List<Liquid> liquids, PeriodType period) {
+        List<LiquidResponseDTO.LiquidPreviewDTO> liquidPreviewDTOs = liquids.stream()
+                .map(LiquidConverter::toLiquidPreviewDTO).toList();
+
+        return LiquidResponseDTO.LiquidTrendDTO.builder()
+                .liquidPreviewDTOs(liquidPreviewDTOs)
+                .period(period)
                 .build();
     }
 }

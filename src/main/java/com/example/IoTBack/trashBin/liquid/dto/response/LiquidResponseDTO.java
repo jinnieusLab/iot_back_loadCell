@@ -45,6 +45,15 @@ public class LiquidResponseDTO {
     @AllArgsConstructor
     @NoArgsConstructor
     @Builder
+    public static class LiquidTrendDTO {
+        List<LiquidPreviewDTO> liquidPreviewDTOs;
+        private PeriodType period;
+    }
+
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
     public static class LiquidTotalTrendPointDTO {
         private String label; // 구간
         private double totalWeight; // 해당 구간(1일/1시간) 누적 무게 합
